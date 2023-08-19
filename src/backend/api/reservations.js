@@ -1,66 +1,55 @@
 const express = require("express");
 const router = express.Router();
 const knex = require("../database");
-
-// getting all meals
-
+//Returns all reservations
 router.get("/", async (request, response) => {
   try {
     // knex syntax for selecting things. Look up the documentation for knex for further info
-    const titles = await knex("meals").select("title");
+    const titles = await knex("reservation");
     response.json(titles);
   } catch (error) {
     throw error;
   }
 });
-
-// adding new meal to database
+//Adds a new reservation
 router.post("/", async (request, response) => {
   try {
-    const { title, description, location, when, max_reservations, price } =
-      request.body;
-    // insert to database
-    await knex("meal").insert({
-      title,
-      description,
-      location,
-      when,
-      max_reservations,
-      price,
-      created_date: new Date(),
-    });
-    response.status(201).json({ success: true });
+    const newReservation = await knex("reservation").insert(request.body);
+    response.send("New reservation added");
   } catch (error) {
-    response.status(500).json({ error: "error occurred" });
+    throw error;
   }
 });
-//Returns meal by id
+//Returns reservation by id
 router.get("/:id", async (request, response) => {
   try {
-    const meals = await knex("meals").where({ id: request.params.id });
-    response.json(meals);
+    const reservations = await knex("reservation").where(
+      "id",
+      parseInt(request.params.id)
+    );
+    response.json(reservations);
   } catch (error) {
     throw error;
   }
 });
-//Updates the meal by id
+//Updates the reservation by id
 router.put("/:id", async (request, response) => {
   try {
-    const meals = await knex("meals")
+    const reservations = await knex("reservation")
       .where("id", parseInt(request.params.id))
       .update(request.body);
-    response.json(meals);
+    response.json(reservations);
   } catch (error) {
     throw error;
   }
 });
-//Deletes the meal by id
+//Deletes the reservation by id
 router.delete("/:id", async (request, response) => {
   try {
-    const deleteMeal = await knex("meals")
+    const deleteReservation = await knex("reservation")
       .where("id", parseInt(request.params.id))
       .del();
-    response.json(deleteMeal);
+    response.json(deleteReservation);
   } catch (error) {
     throw error;
   }
